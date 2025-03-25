@@ -1,17 +1,31 @@
 import { getCurrentUser } from 'vuefire'
-import { addDoc, collection, doc, getDoc, getDocs, serverTimestamp } from "firebase/firestore"
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore"
 import { getAuth, signInAnonymously } from 'firebase/auth'
 
 export const useFetchFeedbacks = () => {
   const db = useFirestore()
   const { doc: projectDoc } = useProjectDoc()
 
-  const fetchItems = async () => {
+  const fetchItems = async (sort: string) => {
     if (!projectDoc.value) {
       throw new Error('Project not found')
     }
     const itemsCollectionRef = collection(db, 'projects', projectDoc.value.id, 'items')
-    const items = await getDocs(itemsCollectionRef)
+    let sortKey = '';
+    switch (sort) {
+      case 'recent':
+        sortKey = 'createdAt';
+        break;
+      case 'recommend':
+        sortKey = 'votes';
+        break;
+      case 'comment':
+        sortKey = 'comments';
+        break;
+    }
+
+    const q  = query(itemsCollectionRef, orderBy(sortKey, 'desc'))
+    const items = await getDocs(q)
     return items.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
   }
 
@@ -28,9 +42,7 @@ export const useFetchFeedbacks = () => {
       throw new Error('Project not found')
     }
 
-      console.log('items id => ', id)
     const comments = await getDocs(collection(db, 'projects', projectDoc.value.id, 'items', id, 'comments'))
-    console.log('comments => ', comments)
     return comments.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
   }
 

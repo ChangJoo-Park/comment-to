@@ -22,6 +22,7 @@
     "@nuxt/ui": "^3.0.1",
     "@tailwindcss/vite": "^4.0.15",
     "@unhead/vue": "^2.0.0",
+    "@vueuse/core": "^13.0.0",
     "eslint": "^9.23.0",
     "firebase": "^11.5.0",
     "nuxt": "^3.16.1",

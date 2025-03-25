@@ -12,7 +12,7 @@ const goBack = () => {
 }
 </script>
 <template>
-  <div class="container mx-auto max-w-screen-lg py-8">
+  <div class="container mx-auto max-w-screen-lg py-8 px-4">
     <button class="flex flex-col gap-4 mb-8" @click="goBack">뒤로가기</button>
     <div>
       <div>
@@ -23,7 +23,9 @@ const goBack = () => {
         </p>
       </div>
       <div class="mt-8">
-        <p class="text-sm text-gray-500">{{ changeLog.description }}</p>
+        <article class="prose lg:prose-xl">
+          {{ changeLog.description }}
+        </article>
       </div>
     </div>
   </div>

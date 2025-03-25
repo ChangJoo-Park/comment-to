@@ -1,14 +1,8 @@
 <template>
-  <div>
-    <div class="navbar bg-base-100 shadow-sm">
-      <a class="btn btn-ghost text-xl">daisyUI</a>
-    </div>
-    <div class="flex flex-row">
-      <div class="w-64">
-        HELLO WORLD
-      </div>
+  <div class="flex w-screen h-screen bg-base-200 flex">
+    <AdminSidebar />
+    <main class="flex-1 p-6 border rounded-xl m-4 shadow-xl bg-base-100 overflow-y-auto">
       <slot />
-    </div>
-
+    </main>
   </div>
 </template>

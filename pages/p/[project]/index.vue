@@ -1,11 +1,12 @@
 <script setup>
-
+onMounted(() => {
+  const { project } = useRoute().params
+  useRouter().push(`/p/${project}/comments`)
+})
 </script>
 
 <template>
   <div>
-    <h1>Hello</h1>
-    <div>World</div>
   </div>
 </template>
 

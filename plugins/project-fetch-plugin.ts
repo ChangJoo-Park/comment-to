@@ -1,6 +1,7 @@
 export default defineNuxtPlugin(() => {
   addRouteMiddleware(async (to) => {
     if (to.path.startsWith('/p/')) {
+      // 사용자 로그인 처리, 로그인 안했으면 익명 로그인
       const slug = to.params.project
 
       if (!slug) {
@@ -9,7 +10,6 @@ export default defineNuxtPlugin(() => {
 
       const { fetchDoc, doc } = useProjectDoc()
       await fetchDoc(slug)
-      console.log('doccccc -> ', doc.value)
       if (!doc.value) {
         return navigateTo('/') // TODO: 404
       }

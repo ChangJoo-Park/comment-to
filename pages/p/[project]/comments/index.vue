@@ -18,14 +18,12 @@ const handleSubmit = (e) => {
   createFeedback(title.value.trim(), description.value.trim())
   title.value = ''
   description.value = ''
-  // unfocus
   e.target.blur()
 }
 
 const { fetchItems } = useFetchFeedbacks()
 
 watch(sort, async () => {
-  console.log('sort => ', sort.value)
   items.value = await fetchItems(sort.value)
 }, { immediate: true })
 
@@ -82,7 +80,8 @@ watch(sort, async () => {
                 </div>
                 <p class="text-sm text-gray-500">{{ item.description }}</p>
                 <div class="text-sm text-gray-500">
-                  <span class="text-gray-500">{{ item.createdAt.toDate().toLocaleString() }}</span>
+                  <span class="text-gray-500" v-if="item.createdAt">{{ item.createdAt.toDate().toLocaleString()
+                    }}</span>
                 </div>
               </div>
               <div class="flex flex-row gap-2 items-center">

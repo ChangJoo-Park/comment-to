@@ -11,6 +11,8 @@ const user = useCurrentUser()
 const isLoading = ref(true)
 const newComment = ref('')
 const isSubmitting = ref(false)
+const isVoting = ref(false)
+const { user: userDoc, fetchDoc: fetchUserDoc } = useProjectUser()
 
 function goBack() {
   try {
@@ -29,6 +31,10 @@ onMounted(async () => {
   try {
     item.value = await fetchItem(route.params.comment)
     comments.value = await fetchComments(route.params.comment)
+    // 사용자 정보가 없으면 불러오기
+    if (user.value && !userDoc.value) {
+      await fetchUserDoc()
+    }
     useSeoMeta({
       title: `${item?.value?.title}`,
       description: item?.value?.description,
@@ -39,6 +45,39 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+// 사용자 투표 상태 확인
+const hasVoted = computed(() => {
+  if (!userDoc.value || !userDoc.value.votes) return false
+  return userDoc.value.votes.includes(route.params.comment)
+})
+
+// 투표 처리 함수
+const handleVote = async (type) => {
+  if (!user.value) {
+    // 로그인 필요 알림
+    const confirm = window.confirm('투표하려면 로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')
+    if (confirm) {
+      navigateTo(`/login?redirect=${encodeURIComponent(window.location.pathname)}`)
+    }
+    return
+  }
+
+  isVoting.value = true
+  try {
+    const { vote } = useUpvote()
+    await vote(route.params.comment, type)
+
+    // 투표 후 아이템 정보와 사용자 정보 업데이트
+    item.value = await fetchItem(route.params.comment)
+    await fetchUserDoc()
+  } catch (error) {
+    console.error('투표 중 오류 발생:', error)
+    alert(`투표 처리 중 오류가 발생했습니다: ${error.message}`)
+  } finally {
+    isVoting.value = false
+  }
+}
 
 const submitComment = async (text) => {
   if (!text.trim()) return
@@ -109,16 +148,40 @@ const statusDisplayName = computed(() => {
               </div>
             </div>
 
-            <!-- 투표수 표시 -->
-            <div class="flex justify-between items-center py-3 border-b border-base-200">
-              <span class="text-base-content/70">투표수</span>
-              <div class="flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path
-                    d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                </svg>
-                <span class="font-medium">{{ item.votes || 0 }}</span>
+            <!-- 투표수 표시 및 투표 버튼 -->
+            <div class="flex flex-col gap-3 py-3 border-b border-base-200">
+              <div class="flex justify-between items-center">
+                <span class="text-base-content/70">투표수</span>
+                <div class="flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path
+                      d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                  </svg>
+                  <span class="font-medium">{{ item.votes || 0 }}</span>
+                </div>
+              </div>
+
+              <!-- 투표 버튼 -->
+              <div class="flex items-center justify-center gap-2">
+                <button v-if="hasVoted" @click="handleVote('down')" class="btn btn-sm btn-outline flex-1"
+                  :class="{ 'loading': isVoting }" :disabled="isVoting">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2" />
+                  </svg>
+                  투표 취소
+                </button>
+                <button v-else @click="handleVote('up')" class="btn btn-sm btn-primary flex-1"
+                  :class="{ 'loading': isVoting }" :disabled="isVoting">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                  </svg>
+                  투표하기
+                </button>
               </div>
             </div>
 
@@ -141,6 +204,17 @@ const statusDisplayName = computed(() => {
               <span class="text-base-content/70">작성일</span>
               <CDateTime :date="item.createdAt.toDate()" class="text-sm" />
             </div>
+          </div>
+        </div>
+
+        <!-- 로그인 안내 카드 (비로그인 사용자에게만 표시) -->
+        <div v-if="!user" class="card bg-base-100 shadow-lg mt-4">
+          <div class="card-body p-4">
+            <p class="text-sm text-base-content/80 mb-2">투표 및 댓글 작성을 위해 로그인해주세요.</p>
+            <NuxtLink :to="`/login?redirect=${encodeURIComponent(window.location.pathname)}`"
+              class="btn btn-primary btn-sm w-full">
+              로그인하기
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -186,8 +260,8 @@ const statusDisplayName = computed(() => {
           </div>
         </div>
 
-        <!-- 댓글 작성 폼 -->
-        <div class="card bg-base-100 shadow-lg mb-8">
+        <!-- 댓글 작성 폼 (로그인 사용자만 표시) -->
+        <div v-if="user" class="card bg-base-100 shadow-lg mb-8">
           <div class="card-body p-6">
             <h2 class="card-title text-lg mb-4">댓글 작성</h2>
             <div class="form-control">

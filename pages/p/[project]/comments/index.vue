@@ -65,8 +65,8 @@ const handleUpVote = async (id) => {
 
   isLoading.value = true
   try {
-    const { upvote } = useUpvote()
-    await upvote(id)
+    const { vote } = useUpvote()
+    await vote(id, 'up')
     items.value = await fetchItems(sort.value)
     await fetchUserDoc() // 최신 사용자 정보 업데이트
   } catch (error) {
@@ -91,8 +91,8 @@ const handleDownVote = async (id) => {
 
   isLoading.value = true
   try {
-    const { downvote } = useUpvote()
-    await downvote(id)
+    const { vote } = useUpvote()
+    await vote(id, 'down')
     items.value = await fetchItems(sort.value)
     await fetchUserDoc() // 최신 사용자 정보 업데이트
   } catch (error) {

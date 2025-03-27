@@ -3,14 +3,20 @@ import { Suspense } from 'vue'
 import CDateTime from '~/components/CDateTime.vue'
 import CUsername from '~/components/CUsername.vue'
 
+const { doc: projectDoc } = useProjectDoc()
 const route = useRoute()
 const item = ref(null)
 const comments = ref([])
 const user = useCurrentUser()
-const commentText = ref('')
+
 function goBack() {
-  navigateTo('/p/' + route.params.project + '/comments')
-}
+  try {
+    const router = useRouter();
+    router.back(); // 이전 페이지로 이동
+  } catch {
+    // 히스토리가 없는 경우 목록 페이지로
+    return navigateTo('/p/' + route.params.project + '/comments')
+  }}
 
 const { fetchItem, fetchComments } = useFetchFeedbacks()
 
@@ -29,6 +35,10 @@ const submitComment = async (text) => {
   comments.value.push(comment)
 }
 
+const getStatus = (value) => {
+  return projectDoc?.value?.status.find((status) => status.key === value)
+}
+
 </script>
 <template>
   <div class="container mx-auto max-w-screen-lg py-8">
@@ -40,15 +50,14 @@ const submitComment = async (text) => {
         <div class="w-full flex flex-col gap-4">
           <div class="w-full flex flex-row gap-2 justify-between">
             <p class="font-bold">상태</p>
-            <p class="text-gray-500">논의중</p>
+            <div class="flex flex-row gap-2 items-center">
+              <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: getStatus(item?.status)?.color }"></div>
+              {{ getStatus(item?.status)?.displayName ?? '없음' }}
+            </div>
           </div>
           <div class="w-full flex flex-row gap-2 justify-between">
             <p class="font-bold">투표수</p>
-            <p class="text-gray-500">100+</p>
-          </div>
-          <div class="w-full flex flex-row gap-2 justify-between">
-            <p class="font-bold">참여자</p>
-            <p class="text-gray-500">100+</p>
+            <p class="">{{ item?.votes ?? 0 }}</p>
           </div>
         </div>
       </div>

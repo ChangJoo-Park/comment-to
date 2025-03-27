@@ -31,6 +31,8 @@ export const useCreateFeedback = () => {
       username: user?.displayName || null,
       avatar: user?.photoURL || null,
       email: user?.email || null,
+      comments: 0,
+      votes: 0,
     })
   }
 

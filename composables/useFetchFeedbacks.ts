@@ -1,6 +1,4 @@
-import { getCurrentUser } from 'vuefire'
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore"
-import { getAuth, signInAnonymously } from 'firebase/auth'
+import {  collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore"
 
 export const useFetchFeedbacks = () => {
   const db = useFirestore()
@@ -25,6 +23,16 @@ export const useFetchFeedbacks = () => {
     }
 
     const q  = query(itemsCollectionRef, orderBy(sortKey, 'desc'))
+    const items = await getDocs(q)
+    return items.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+  }
+
+  const fetchItemsByStatus = async (status: string[]) => {
+    if (!projectDoc.value) {
+      throw new Error('Project not found')
+    }
+    const itemsCollectionRef = collection(db, 'projects', projectDoc.value.id, 'items')
+    const q = query(itemsCollectionRef, where('status', 'in', status))
     const items = await getDocs(q)
     return items.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
   }
@@ -55,6 +63,6 @@ export const useFetchFeedbacks = () => {
   return {
     fetchItems,
     fetchItem,
-    fetchComments,
+    fetchComments,fetchItemsByStatus,
   }
 }

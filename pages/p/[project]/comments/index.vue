@@ -3,11 +3,10 @@ import { useCreateFeedback } from '~/composables/useCreateFeedback'
 import { useFetchFeedbacks } from '~/composables/useFetchFeedbacks'
 import { useUnfocus } from '~/composables/useUnfocus'
 import { onKeyStroke } from '@vueuse/core'
-import CCommentListItem from '~/components/CFeedbackListItem.vue'
 import { Icon } from '#components'
 
 const { unfocus } = useUnfocus()
-
+const { doc: projectDoc } = useProjectDoc()
 const project = useRoute().params.project
 const sort = ref('recent')
 const items = ref([])
@@ -16,8 +15,10 @@ const searchInput = ref(null)
 const title = ref('')
 const description = ref('')
 
-const handleUpVote = (id) => {
-  console.log('upvotie', id)
+const handleUpVote = async (id) => {
+  const { upvote } = useUpvote()
+  await upvote(id)
+  items.value = await fetchItems(sort.value)
 }
 
 const handleSubmit = async (e) => {
@@ -73,7 +74,7 @@ onMounted(() => {
     <CPageTitle title="피드백" />
     <div class="flex flex-col lg:flex-row gap-8">
       <div class="w-full lg:w-[400px]">
-        <form action="" class="card bg-gray-100 shadow-sm flex flex-col gap-4 p-4" @submit.prevent="handleSubmit">
+        <form action="" class="card bg-gray-50 shadow-sm flex flex-col gap-4 p-4" @submit.prevent="handleSubmit">
           <legend class="text-lg font-bold">요청사항</legend>
           <!-- 어드민에서 수정할 수 있어야함 -->
           <p class="text-sm text-gray-500">이 서비스 개선을 위한 제안을 해주세요.</p>
@@ -106,7 +107,7 @@ onMounted(() => {
         </div>
         <div class="flex flex-col">
           <CFeedbackListItem :project="project" :item="item" v-for="item in items" :key="item.id"
-            :onClick="() => handleUpVote(item.id)" />
+            :onUpVoteClick="() => handleUpVote(item.id)" :status="getStatus(projectDoc, item.status)" />
         </div>
       </div>
     </div>

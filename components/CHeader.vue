@@ -66,7 +66,7 @@ const handleUserDropdown = (key) => {
       </div>
       <div class="flex-1"></div>
       <div>
-        <div v-if="user" class="flex flex-row gap-2 items-center">
+        <div v-if="user && !user.isAnonymous" class="flex flex-row gap-2 items-center">
           <div class="dropdown">
             <div tabindex="0" class="flex flex-row gap-2 items-center select-none cursor-pointer">
               <div class="w-8 h-8 rounded-full bg-gray-200"></div>

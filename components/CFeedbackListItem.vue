@@ -8,14 +8,23 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  onClick: {
+  status: {
+    type: Object,
+    required: false,
+    default: () => null
+  },
+  onUpVoteClick: {
     type: Function,
     required: true,
   },
 })
 
+const emptyStatus = computed(() => {
+  return props.status == {}
+})
+
 const onUpVote = (id) => {
-  props.onClick(id)
+  props.onUpVoteClick(id)
 }
 </script>
 <template>
@@ -36,7 +45,11 @@ const onUpVote = (id) => {
     <div class="flex-1 flex flex-col">
       <h3 class="text-lg font-bold mb-1">{{ item.title }}</h3>
       <p class="text-sm mb-4" v-if="item.description.length > 0">{{ item.description }}</p>
-      <CDateTime :date="item.createdAt.toDate()" />
+      <div class="flex flex-row gap-1 items-center" v-if="!emptyStatus">
+        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: status?.color }" v-if="status"></div>
+        <span class="text-sm" v-if="status">{{ status?.displayName ?? '없음'}}</span>
+        <CDateTime :date="item.createdAt.toDate()" />
+      </div>
     </div>
     <div class="flex flex-row gap-1 items-center">
       <Icon name="la:comments" />

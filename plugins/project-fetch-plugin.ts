@@ -12,6 +12,8 @@ export default defineNuxtPlugin(() => {
 
         const { fetchDoc, doc } = useProjectDoc();
         await fetchDoc(slug);
+        const { fetchDoc: fetchUserDoc } = useProjectUser();
+        await fetchUserDoc();
         if (!doc.value) {
           return navigateTo("/"); // TODO: 404
         }

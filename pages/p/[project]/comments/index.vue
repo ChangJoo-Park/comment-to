@@ -7,6 +7,7 @@ import { Icon } from '#components'
 
 const { unfocus } = useUnfocus()
 const { doc: projectDoc } = useProjectDoc()
+const { user, fetchDoc: fetchUserDoc } = useProjectUser()
 const project = useRoute().params.project
 const sort = ref('recent')
 const items = ref([])
@@ -16,12 +17,24 @@ const title = ref('')
 const description = ref('')
 
 const handleUpVote = async (id) => {
+  unfocus()
   const { upvote } = useUpvote()
   await upvote(id)
   items.value = await fetchItems(sort.value)
+  await fetchUserDoc()
 }
 
-const handleSubmit = async (e) => {
+const handleDownVote = async (id) => {
+  console.log('handleDownVote', id)
+  unfocus()
+  const { downvote } = useUpvote()
+  await downvote(id)
+  items.value = await fetchItems(sort.value)
+  await fetchUserDoc()
+
+}
+
+const handleSubmit = async (_) => {
   const { createFeedback } = useCreateFeedback()
   createFeedback(title.value.trim(), description.value.trim())
   title.value = ''
@@ -55,11 +68,11 @@ const clickSort = async (value) => {
   unfocus()
 }
 
-onKeyStroke(['k', 'K', 'meta'], (e) => {
+onKeyStroke(['k', 'K', 'meta'], (_) => {
   searchInput.value.focus()
 })
 
-onKeyStroke(['Escape'], (e) => {
+onKeyStroke(['Escape'], (_) => {
   unfocus()
 })
 
@@ -78,14 +91,15 @@ onMounted(() => {
           <legend class="text-lg font-bold">요청사항</legend>
           <!-- 어드민에서 수정할 수 있어야함 -->
           <p class="text-sm text-gray-500">이 서비스 개선을 위한 제안을 해주세요.</p>
-          <input type="text" class="input w-full" v-model="title" required placeholder="제목을 입력해주세요" />
-          <textarea class="textarea w-full" placeholder="자세한 내용을 알려주세요 (옵션)" rows="8" v-model="description" />
-          <input type="submit" value="남기기" class="btn btn-primary" />
+          <input v-model="title" type="text" class="input w-full" required placeholder="제목을 입력해주세요">
+          <textarea v-model="description" class="textarea w-full" placeholder="자세한 내용을 알려주세요 (옵션)" rows="8" />
+          <input type="submit" value="남기기" class="btn btn-primary" >
         </form>
         <div class="mt-2 text-sm text-gray-500">
           Powered by <code>Comment</code>.
         </div>
       </div>
+
       <div class="w-full flex flex-col gap-4">
         <div class="flex flex-row justify-between">
           <div class="dropdown">
@@ -100,14 +114,17 @@ onMounted(() => {
           </div>
           <label class="input">
             <Icon name="la:search" size="2em" />
-            <input type="search" placeholder="검색" class="grow" ref="searchInput" />
+            <input ref="searchInput" type="search" placeholder="검색" class="grow" >
             <kbd class="kbd kbd-sm">⌘</kbd>
             <kbd class="kbd kbd-sm">K</kbd>
           </label>
         </div>
         <div class="flex flex-col">
-          <CFeedbackListItem :project="project" :item="item" v-for="item in items" :key="item.id"
-            :onUpVoteClick="() => handleUpVote(item.id)" :status="getStatus(projectDoc, item.status)" />
+          <CFeedbackListItem
+v-for="item in items" :key="item.id" :project="project" :item="item"
+            :on-up-vote-click="() => handleUpVote(item.id)" :on-down-vote-click="() => handleDownVote(item.id)" :status="getStatus(projectDoc, item.status)"
+            :has-vote="user?.votes.includes(item.id)"
+            />
         </div>
       </div>
     </div>

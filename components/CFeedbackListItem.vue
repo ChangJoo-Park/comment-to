@@ -17,6 +17,15 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  onDownVoteClick: {
+    type: Function,
+    required: true,
+  },
+  hasVote: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const emptyStatus = computed(() => {
@@ -24,16 +33,28 @@ const emptyStatus = computed(() => {
 })
 
 const onUpVote = (id) => {
-  props.onUpVoteClick(id)
+  if (props.hasVote) {
+    props.onDownVoteClick(id)
+  } else {
+    props.onUpVoteClick(id)
+  }
+
 }
 </script>
 <template>
-  <NuxtLink :to="`/p/${project}/comments/${item.id}`"
+  <NuxtLink
+:to="`/p/${project}/comments/${item.id}`"
     class="flex flex-row gap-4 w-full px-4 py-8 items-center border-b border-gray-400">
     <div>
       <div class="flex flex-row gap-2">
-        <button type="button"
-          class="text-black bg-white px-4 py-2 rounded-md cursor-pointer hover:bg-black hover:text-white outline outline-gray-100 group flex flex-col gap-0"
+        <button
+          type="button"
+          :class="[
+            'px-4 py-2 rounded-md cursor-pointer flex flex-col gap-0 outline outline-gray-100 items-center justify-center',
+            hasVote
+              ? 'bg-black text-white hover:bg-gray-800'
+              : 'bg-white text-black hover:bg-black hover:text-white'
+          ]"
           @click.prevent="onUpVote">
           <div>
             <Icon name="la:angle-up" />
@@ -44,10 +65,10 @@ const onUpVote = (id) => {
     </div>
     <div class="flex-1 flex flex-col">
       <h3 class="text-lg font-bold mb-1">{{ item.title }}</h3>
-      <p class="text-sm mb-4" v-if="item.description.length > 0">{{ item.description }}</p>
-      <div class="flex flex-row gap-1 items-center" v-if="!emptyStatus">
-        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: status?.color }" v-if="status"></div>
-        <span class="text-sm" v-if="status">{{ status?.displayName ?? '없음'}}</span>
+      <p v-if="item.description.length > 0" class="text-sm mb-4">{{ item.description }}</p>
+      <div v-if="!emptyStatus" class="flex flex-row gap-1 items-center">
+        <div v-if="status" class="w-2 h-2 rounded-full" :style="{ backgroundColor: status?.color }"/>
+        <span v-if="status" class="text-sm">{{ status?.displayName ?? '없음'}}</span>
         <CDateTime :date="item.createdAt.toDate()" />
       </div>
     </div>

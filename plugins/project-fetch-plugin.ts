@@ -2,7 +2,18 @@ export default defineNuxtPlugin(() => {
   addRouteMiddleware(
     // @ts-ignore
     async (to) => {
+      if (to.path.startsWith("/admin")) {
+        console.log("admin 페이지 접속");
+        const { fetchDoc: fetchUserDoc, user } = useProjectUser();
+        await fetchUserDoc();
+        if (user.value == null) {
+          return navigateTo("/login?redirect=/admin");
+        }
+      }
       if (to.path.startsWith("/p/")) {
+        const { fetchDoc: fetchUserDoc } = useProjectUser();
+        await fetchUserDoc();
+
         // 사용자 로그인 처리, 로그인 안했으면 익명 로그인
         const slug = to.params.project;
 
@@ -12,8 +23,6 @@ export default defineNuxtPlugin(() => {
 
         const { fetchDoc, doc } = useProjectDoc();
         await fetchDoc(slug);
-        const { fetchDoc: fetchUserDoc } = useProjectUser();
-        await fetchUserDoc();
         if (!doc.value) {
           return navigateTo("/"); // TODO: 404
         }

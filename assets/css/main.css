@@ -1,6 +1,5 @@
 @import "tailwindcss";
 /* @import "@nuxt/ui"; */
 @plugin "daisyui" {
-  themes: wireframe --default, dark --prefersdark;
 }
 @plugin "@tailwindcss/typography";

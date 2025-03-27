@@ -42,7 +42,13 @@ export const useFetchFeedbacks = () => {
       throw new Error('Project not found')
     }
 
-    const comments = await getDocs(collection(db, 'projects', projectDoc.value.id, 'items', id, 'comments'))
+    const comments = await getDocs(
+      query(
+        collection(db, 'projects', projectDoc.value.id, 'items', id, 'comments'),
+        orderBy('createdAt', 'desc')  // 최신순 정렬 (desc: 내림차순)
+      )
+    )
+
     return comments.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
   }
 

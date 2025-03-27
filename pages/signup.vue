@@ -30,15 +30,6 @@ const signup = async () => {
     console.error(e);
   }
 }
-
-// const redirect = () => {
-//   const redirect = useRoute().query.r;
-//   if (redirect) {
-//     navigateTo(redirect);
-//   } else {
-//     navigateTo("/");
-//   }
-// }
 </script>
 
 <template>

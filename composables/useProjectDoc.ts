@@ -8,7 +8,6 @@ export const useProjectDoc = () => {
     try {
       if (docState.value) {
         if (docState.value.id === projectId) {
-          console.log('이미 존재하는 문서입니다.')
           return docState.value
         }
       }

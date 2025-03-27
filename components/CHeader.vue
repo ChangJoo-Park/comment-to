@@ -7,34 +7,83 @@ const props = defineProps({
   }
 })
 
-const handleClick = () => {
-  window.alert('click')
+const auth = useFirebaseAuth()
+const route = useRoute()
+const currentPath = computed(() => {
+  return route.path
+})
+
+const active = computed(() => {
+  const route = useRoute()
+  if (route.path.includes('comments')) {
+    return 'comments'
+  } else if (route.path.includes('roadmap')) {
+    return 'roadmap'
+  } else if (route.path.includes('changelogs')) {
+    return 'changelogs'
+  }
+})
+const user = ref(null)
+
+onMounted(() => {
+  useFirebaseAuth().onAuthStateChanged((value) => {
+    user.value = value
+  })
+})
+
+const handleUserDropdown = (key) => {
+  const { unfocus } = useUnfocus()
+  unfocus()
+
+  switch(key) {
+    case 'settings':
+      console.log('settings')
+      break
+    case 'logout':
+      console.log('logout')
+      auth.signOut()
+      break
+  }
 }
 
 </script>
 <template>
-  <div class="border-b border-gray-200">
-    <div class="c-header container mx-auto">
-      <div class="c-header-brand">
-        <img src="/icon.svg" alt="logo" width="60px" height="60px" />
+  <div class="sticky top-0 z-10 bg-white border-b border-gray-200">
+    <div class="c-header container mx-auto py-2">
+      <div class="flex flex-row gap-2 items-center mr-8">
+        <img src="/icon.svg" alt="logo" class="w-12 h-12" />
         <div>
-          <h1 v-if="props.name">{{ props.name }}</h1>
+          <h1 v-if=" props.name" class="text-2xl font-bold">{{ props.name }}</h1>
         </div>
       </div>
       <div class="flex flex-row gap-4">
-        <NuxtLink to="/p/test/roadmap" class="font-bold hover:underline hover:text-blue-500">로드맵</NuxtLink>
-        <NuxtLink to="/p/test/comments" class="font-bold hover:underline hover:text-blue-500">피드백</NuxtLink>
-        <NuxtLink to="/p/test/changelogs" class="font-bold hover:underline hover:text-blue-500">변경이력</NuxtLink>
+        <NuxtLink to="/p/test/comments" class="font-bold hover:underline hover:text-blue-500"
+          :class="{ 'text-blue-500': active === 'comments' }">피드백</NuxtLink>
+        <NuxtLink to="/p/test/roadmap" class="font-bold hover:underline hover:text-blue-500"
+          :class="{ 'text-blue-500': active === 'roadmap' }">로드맵</NuxtLink>
+        <NuxtLink to="/p/test/changelogs" class="font-bold hover:underline hover:text-blue-500"
+          :class="{ 'text-blue-500': active === 'changelogs' }">변경이력</NuxtLink>
       </div>
       <div class="flex-1"></div>
       <div>
-        <button @click="handleClick">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-          </svg>
-        </button>
+        <div v-if="user" class="flex flex-row gap-2 items-center">
+          <div class="dropdown">
+            <div tabindex="0" class="flex flex-row gap-2 items-center select-none cursor-pointer">
+              <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+              <div class="font-bold text-sm">{{ user.email }}</div>
+            </div>
+            <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+              <li><a @click.prevent="handleUserDropdown('settings')">설정</a></li>
+              <li><a @click.prevent="handleUserDropdown('logout')">로그아웃</a></li>
+            </ul>
+          </div>
+
+        </div>
+        <div v-else>
+          <NuxtLink :to="`/login?redirect=${currentPath}`" class="font-bold hover:underline hover:text-blue-500">
+            로그인
+          </NuxtLink>
+        </div>
       </div>
     </div>
   </div>
@@ -53,6 +102,4 @@ const handleClick = () => {
   align-items: center;
   margin-right: 2rem;
 }
-
-.c-header-link {}
 </style>

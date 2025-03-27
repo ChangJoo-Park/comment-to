@@ -3,9 +3,9 @@ const { doc: project } = useProjectDoc()
 </script>
 
 <template>
-  <div class="w-screen h-screen flex flex-col">
+  <div class="flex flex-col">
     <Suspense>
-      <CHeader :name="project.name" />
+      <CHeader v-if="project" :name="project.name" />
     </Suspense>
 
     <slot />

@@ -20,7 +20,7 @@ const login = async () => {
 }
 
 const redirect = () => {
-  const redirect = useRoute().query.r;
+  const redirect = useRoute().query.redirect;
   if (redirect) {
     navigateTo(redirect);
   } else {

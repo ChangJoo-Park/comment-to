@@ -66,7 +66,7 @@ const submitComment = async () => {
 
             <!-- 내용 -->
             <p class="text-gray-500">{{ item.description }}</p>
-            <div class="w-full flex flex-row gap-2 justify-start mt-8" v-if="user.uid == item.createdByUid">
+            <div v-if="!!user && user?.uid == item.createdByUid" class="w-full flex flex-row gap-2 justify-start mt-8" >
               <!-- 수정 및 삭제 -->
               <button class="text-gray-500">수정</button>
               <button class="text-gray-500">삭제</button>

@@ -1,5 +1,18 @@
 @import "tailwindcss";
 /* @import "@nuxt/ui"; */
 @plugin "daisyui" {
+  themes: emerald --default, dark --prefersdark;
 }
 @plugin "@tailwindcss/typography";
+
+@utility card {
+  @apply shadow-none border border-black;
+}
+
+@utility card-body {
+  @apply p-5;
+}
+
+@utility card-title {
+  @apply text-lg font-semibold mb-2;
+}

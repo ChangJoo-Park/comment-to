@@ -15,7 +15,7 @@ onMounted(async () => {
     <div class="flex flex-row gap-4">
       <div class="flex flex-col gap-4 flex-1">
         <div>
-          <h2 class="text-6xl font-bold">{{ recent.title }}</h2>
+          <h2 class="text-4xl font-bold">{{ recent.title }}</h2>
         </div>
         <div>
           <p class="text-sm text-gray-500" v-if="recent.createdAt">{{ recent.createdAt.toDate().toLocaleString() }}</p>

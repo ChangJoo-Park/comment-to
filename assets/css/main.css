@@ -1,18 +1,16 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
 @import "tailwindcss";
-/* @import "@nuxt/ui"; */
-@plugin "daisyui" {
-  themes: emerald --default, dark --prefersdark;
-}
-@plugin "@tailwindcss/typography";
 
-@utility card {
-  @apply shadow-none border border-black;
-}
+@import "preline/variants.css";
+@source "../../node_modules/preline/dist/*.js";
 
-@utility card-body {
-  @apply p-5;
-}
+@plugin "@tailwindcss/forms";
 
-@utility card-title {
-  @apply text-lg font-semibold mb-2;
+@theme {
+  --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
